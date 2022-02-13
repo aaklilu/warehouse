@@ -1,0 +1,28 @@
+components:
+  schemas:
+    Page:
+      type: object
+      title: Page
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          description: Current page of search result.
+        pageSize:
+          type: integer
+          format: int32
+          description: Current desired amount of items per result page.
+        totalElements:
+          type: integer
+          format: int64
+          description: Total amount of items meeting the search criteria.
+        totalPages:
+          type: integer
+          format: int32
+          description: Total amount of available pages compared to the given pageSize.
+        first:
+          type: boolean
+          description: Indicates if this is the first page.
+        last:
+          type: boolean
+          description: Indicates if this is the last page.

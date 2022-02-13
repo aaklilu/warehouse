@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Inventory API
+  contact:
+    name: Product Team
+    email: reachanteneh@gmail.com
+  version: v0.1
+servers:
+  - url: http://localhost:8083/api/v1
+    description: local dev environment
+security:
+  - BasicAuth: [ ]
+tags:
+  - name: inventory-api
+paths:
+  /inventory:
+    post:
+      tags:
+        - inventory-api
+      summary: Create inventory articles
+      operationId: createArticles
+      requestBody:
+        description: inventory article bulk endpoint
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryArticles'
+        required: true
+      responses:
+        201:
+          description: Created
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+        404:
+          description: Not Found
+          content: { }
+components:
+  securitySchemes:
+    BasicAuth:
+      description: >
+        Basic authentication
+      type: http
+      scheme: basic
+  schemas:
+    InventoryArticles:
+      title: Inventory Articles
+      type: object
+      required: [ art_id, name, stock ]
+      properties:
+        inventory:
+          title: Array of Articles
+          type: array
+          items:
+            $ref: './inventory-articles-api-specification.yml#/components/schemas/Article'

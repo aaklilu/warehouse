@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: Inventory API
+  contact:
+    name: Product Team
+    email: reachanteneh@gmail.com
+  version: v0.1
+servers:
+  - url: http://localhost:8083/api/v1
+    description: local dev environment
+security:
+  - BasicAuth: [ ]
+tags:
+  - name: inventory-api
+paths:
+  /inventory/articles:
+    get:
+      tags:
+        - inventory-articles-api
+      summary: Articles, optionally filtered
+      operationId: getArticles
+      parameters:
+        - name: art_id
+          in: query
+          schema:
+            type: string
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: |
+            Page number of the requested page. Defaults to first page.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          description: |
+            Size of a page. Defaults to 20 items.
+          schema:
+            type: integer
+            format: int32
+            default: 20
+        - name: sort
+          in: query
+          description: |
+            Sorting criteria in the form of `<property-name>`.
+            The property name, MUST be from the `Article` property names.
+            For multiple sort values, use multiple `sort` request parameters.
+            Using multiple sort values in one request parameter will not work.
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+          examples:
+            single:
+              value: [ 'name,asc' ]
+              summary: Singular sort
+            multi:
+              value: [ 'name,asc','created_at,asc' ]
+              summary: Multi sort
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticlesPage'
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+    post:
+      tags:
+        - inventory-api
+      summary: Create an article
+      operationId: createArticle
+      requestBody:
+        description: article
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+        required: true
+      responses:
+        201:
+          description: Created
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+        404:
+          description: Not Found
+          content: { }
+    delete:
+      tags:
+        - inventory-api
+      summary: Delete all articles which match the selection criteria (available in dev environment)
+      operationId: deleteAllArticles
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Ok
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+  /inventory/articles/{id}:
+    get:
+      tags:
+        - inventory-api
+      summary: Get article by id
+      operationId: getArticleById
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+components:
+  securitySchemes:
+    BasicAuth:
+      description: >
+        Basic authentication
+      type: http
+      scheme: basic
+  schemas:
+    ArticlesPage:
+      title: ArticlesPage
+      type: object
+      properties:
+        items:
+          title: Array of Articles
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+        page:
+          $ref: './common-model.yml#/components/schemas/Page'
+    Article:
+      title: Article
+      type: object
+      required: [ art_id, name, stock ]
+      properties:
+        art_id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        stock:
+          type: integer
+          format: int32

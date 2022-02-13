@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Info API
+  description: Info API
+  contact:
+    name: Product Team
+    email: reachanteneh@gmail.com
+  version: v0.1
+servers:
+  - url: http://localhost:8080/api/v1
+    description: local dev environment
+security:
+  - BasicAuth: [ ]
+tags:
+  - name: info-api
+    description: Info API
+paths:
+  /actuator/info:
+    get:
+      tags:
+        - info-api
+      summary: Show component info
+      description: ...
+      operationId: showComponentInfo
+      responses:
+        200:
+          description: OK
+          content:
+            application/json: { }
+        401:
+          description: Unauthorized
+          content:
+            application/json: { }
+        403:
+          description: Forbidden
+          content:
+            application/json: { }
+        404:
+          description: Not Found
+          content:
+            application/json: { }
+components:
+  securitySchemes:
+    BasicAuth:
+      description: >
+        Basic authentication is only available on test servers (which have a set of fixed users enable for testing)
+      type: http
+      scheme: basic
