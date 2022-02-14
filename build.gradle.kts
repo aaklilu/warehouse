@@ -88,18 +88,37 @@ tasks.register<GenerateTask>("generateInventoryArticleDTOs") {
     configOptions.putAll(mapOf("sourceFolder" to "generated/src/inventory-article"))
 }
 
+tasks.register<GenerateTask>("generateProductApiDTOs") {
+    doFirst { project.delete(project.fileTree("$buildDir/generated/src/product")) }
+    inputSpec.set("$projectDir/src/main/resources/public/products-api-specification.yml")
+    packageName.set("com.example.warehouse.product")
+    configOptions.putAll(mapOf("sourceFolder" to "generated/src/product"))
+}
+
+tasks.register<GenerateTask>("generateOrderApiDTOs") {
+    doFirst { project.delete(project.fileTree("$buildDir/generated/src/order")) }
+    inputSpec.set("$projectDir/src/main/resources/public/orders-api-specification.yml")
+    packageName.set("com.example.warehouse.order")
+    configOptions.putAll(mapOf("sourceFolder" to "generated/src/order"))
+}
+
 tasks.register("generateOpenApiSpecificationDTOs") {
     dependsOn(
-        "generateInventoryDTOs",
-        "generateInventoryArticleDTOs"
+        "generateInventoryDTOs"
+        ,"generateInventoryArticleDTOs"
+        ,"generateProductApiDTOs"
+        ,"generateOrderApiDTOs"
     )
 }
 
 kotlin {
     sourceSets["main"].apply {
         kotlin.srcDirs(
-            "$buildDir/generated/src/inventory",
-            "$buildDir/generated/src/inventory-article")
+            "$buildDir/generated/src/inventory"
+            ,"$buildDir/generated/src/inventory-article"
+            ,"$buildDir/generated/src/product"
+            ,"$buildDir/generated/src/order"
+        )
     }
 }
 

@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  contact:
+    name: Product Team
+    email: reachanteneh@gmail.com
+  version: v0.1
+servers:
+  - url: http://localhost:8083/api/v1
+    description: local dev environment
+security:
+  - BasicAuth: [ ]
+tags:
+  - name: orders-api
+paths:
+  /orders:
+    get:
+      tags:
+        - orders-api
+      summary: Orders, optionally filtered
+      operationId: getOrders
+      parameters:
+        - name: page
+          in: query
+          description: |
+            Page number of the requested page. Defaults to first page.
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          description: |
+            Size of a page. Defaults to 20 items.
+          schema:
+            type: integer
+            format: int32
+            default: 20
+        - name: sort
+          in: query
+          description: |
+            Sorting criteria in the form of `<property-name>`.
+            The property name, MUST be from the `Order` property names.
+            For multiple sort values, use multiple `sort` request parameters.
+            Using multiple sort values in one request parameter will not work.
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+          examples:
+            single:
+              value: [ 'created_at,asc' ]
+              summary: Singular sort
+            multi:
+              value: [ 'created_at,asc' ]
+              summary: Multi sort
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrdersPage'
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+    post:
+      tags:
+        - orders-api
+      summary: Create an Order
+      operationId: createOrder
+      requestBody:
+        description: order
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      responses:
+        201:
+          description: Created
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+        404:
+          description: Not Found
+          content: { }
+    delete:
+      tags:
+        - orders-api
+      summary: Delete all orders which match the selection criteria (not available in live environment)
+      operationId: deleteAllOrders
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Ok
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+  /orders/{id}:
+    get:
+      tags:
+        - orders-api
+      summary: Get order by id
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+components:
+  securitySchemes:
+    BasicAuth:
+      description: >
+        Basic authentication
+      type: http
+      scheme: basic
+  schemas:
+    OrdersPage:
+      title: OrdersPage
+      type: object
+      properties:
+        items:
+          title: Array of Orders
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        page:
+          $ref: './common-model.yml#/components/schemas/Page'
+    Order:
+      title: Order
+      type: object
+      required: [ name ]
+      properties:
+        name:
+          type: string
+        line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LineItem'
+    Customer:
+      title: Customer
+      type: object
+      required: [ name ]
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+    LineItem:
+      title: LineItem
+      type: object
+      required: [ product_id, quantity ]
+      properties:
+        product_id:
+          type: string
+        quantity:
+          type: integer
+          format: int32
