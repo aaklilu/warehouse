@@ -39,6 +39,8 @@ paths:
         404:
           description: Not Found
           content: { }
+        '5XX':
+          description: Unexpected error.
 components:
   securitySchemes:
     BasicAuth:
@@ -50,10 +52,11 @@ components:
     InventoryArticles:
       title: Inventory Articles
       type: object
-      required: [ art_id, name, stock ]
+      required: [ inventory ]
       properties:
         inventory:
           title: Array of Articles
           type: array
+          minItems: 1
           items:
             $ref: './inventory-articles-api-specification.yml#/components/schemas/Article'

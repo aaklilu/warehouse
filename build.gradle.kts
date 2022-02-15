@@ -28,9 +28,12 @@ repositories {
 }
 
 extra["testcontainersVersion"] = "1.16.2"
+extra["springmockkVersion"] = "3.1.0"
+extra["detektFormattingVersion"] = "1.19.0"
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektFormattingVersion")}")
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -42,6 +45,8 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
 }
@@ -53,6 +58,7 @@ dependencyManagement {
 }
 
 detekt {
+    autoCorrect = true
     buildUponDefaultConfig = true
     allRules = false
     config = files("$projectDir/config/detekt.yml")
@@ -131,7 +137,16 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform()
+    useJUnitPlatform{
+        excludeTags("integration")
+    }
+}
+
+tasks.register<Test>("integrationTest") {
+    group = "verification"
+    useJUnitPlatform{
+        includeTags("integration")
+    }
 }
 
 tasks.withType<GenerateTask> {

@@ -5,4 +5,4 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-abstract class UnitTest
+class BaseUnitTest

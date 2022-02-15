@@ -89,8 +89,8 @@ paths:
               $ref: '#/components/schemas/Article'
         required: true
       responses:
-        201:
-          description: Created
+        200:
+          description: Ok
           content: { }
         401:
           description: Unauthorized
@@ -173,10 +173,10 @@ components:
       required: [ art_id, name, stock ]
       properties:
         art_id:
-          type: integer
-          format: int32
+          type: string
         name:
           type: string
         stock:
           type: integer
           format: int32
+          default: 0
