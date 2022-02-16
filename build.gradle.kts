@@ -30,6 +30,7 @@ repositories {
 extra["testcontainersVersion"] = "1.16.2"
 extra["springmockkVersion"] = "3.1.0"
 extra["detektFormattingVersion"] = "1.19.0"
+extra["awatilityVersion"] = "4.1.1"
 
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektFormattingVersion")}")
@@ -48,7 +49,9 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
     testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.awaitility:awaitility-kotlin:${property("awatilityVersion")}")
 }
 
 dependencyManagement {

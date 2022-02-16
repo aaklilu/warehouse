@@ -10,5 +10,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @ComponentScan
 @EnableJpaAuditing
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = ["com.example.warehouse.*"])
+@EnableJpaRepositories(basePackages = ["com.example.warehouse"])
 class DatasourceConfig

@@ -8,4 +8,7 @@ CREATE TABLE article
     CONSTRAINT pk_article PRIMARY KEY (id)
 );
 
+ALTER TABLE article
+    ADD CONSTRAINT uc_article_articleid UNIQUE (article_id);
+
 CREATE INDEX idx_article__article_id_name ON article (article_id, name);

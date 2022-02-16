@@ -2,5 +2,5 @@ package com.example.warehouse.config
 
 import org.springframework.context.annotation.Import
 
-@Import(value = [DatasourceConfig::class, HttpSecurityConfig::class])
+@Import(value = [AsyncConfig::class, DatasourceConfig::class, HttpSecurityConfig::class])
 open class BaseConfig
