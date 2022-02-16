@@ -8,6 +8,9 @@ import com.example.warehouse.inventory.data.ArticleRepository
 import com.example.warehouse.inventory.models.InventoryArticlesDto
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.withPollInterval
+import org.awaitility.pollinterval.FixedPollInterval
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -17,14 +20,11 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import java.time.Duration
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.withPollInterval
-import org.awaitility.pollinterval.FixedPollInterval
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 @Import(value = [InventoryConfig::class])
 class InventoryIntegrationTest(
@@ -51,13 +51,15 @@ class InventoryIntegrationTest(
         assertEquals(HttpStatus.CREATED, status)
 
         mapper.readValue<InventoryArticlesDto>(inventoryJson).let { expected ->
-            ((await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
-                .atMost(Duration.of(10, ChronoUnit.SECONDS))).untilAsserted {
-                    val articles = articleRepository.findAll()
-                    assertTrue(
-                        expected.inventory.all { article -> articles.any { it.articleId == article.artId } }
-                    )
-                }
+            (
+                (await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
+                    .atMost(Duration.of(10, ChronoUnit.SECONDS))
+                ).untilAsserted {
+                val articles = articleRepository.findAll()
+                assertTrue(
+                    expected.inventory.all { article -> articles.any { it.articleId == article.artId } }
+                )
+            }
         }
     }
 
