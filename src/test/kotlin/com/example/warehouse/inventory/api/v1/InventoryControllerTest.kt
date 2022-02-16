@@ -6,9 +6,9 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -20,11 +20,11 @@ class InventoryControllerTest(@Autowired private val mockMvc: MockMvc) : BaseCon
     @Test
     @WithMockUser(username = "admin", password = "password", roles = ["ADMIN"])
     fun `when POST bulk inventory articles, then STATUS 201 is returned`() {
-        val inventoryJson = ClassPathResource("inventory.json").file.readText()
         every { articleService.createArticles(any()) } returns listOf()
 
         mockMvc.perform(
             post("/api/v1/inventory")
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic("user", "password"))
                 .content(inventoryJson).contentType(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isCreated)

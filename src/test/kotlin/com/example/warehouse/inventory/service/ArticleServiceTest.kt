@@ -84,31 +84,4 @@ internal class ArticleServiceTest {
             applicationEventPublisher.publishEvent(any())
         }
     }
-    /**
-     *
-
-     @Test
-     fun `check if system could apply changeset to master`() {
-     val confirmRequest = ConfirmRequestDto(
-     reasonCode = "CW"
-     )
-     val persistedChangeSet = changeSetRepository.save(klChangeSet)
-     scheduledFlightChangeRepository.save(klScheduledFlightChange2.apply {
-     changeSet = persistedChangeSet
-     selectionUserId = "k900380"
-     })
-     changeSetsService.compressScheduledFlightChangesForWaitingRoom(persistedChangeSet)?.get()
-
-     webTestClient.post().uri("/change-sets/waiting-room/selectionConfirm")
-     .body(Mono.just(confirmRequest), ConfirmRequestDto::class.java)
-     .exchange()
-     .expectStatus().isAccepted
-
-     ((await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
-     .atMost(Duration.of(10, ChronoUnit.SECONDS))).untilAsserted {
-     assertEquals(ChangeGroupState.SENT_TO_MASTER, changeGroupRepository.findAll().first().state)
-     assertEquals(PROCESSED, changeSetRepository.findById(persistedChangeSet.id!!).get().state)
-     }
-     }
-     */
 }
