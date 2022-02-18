@@ -5,7 +5,6 @@ import com.example.warehouse.order.models.OrderDto
 import com.example.warehouse.order.models.OrdersPageDto
 import com.example.warehouse.order.models.PageDto
 import com.example.warehouse.order.service.OrderService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -22,7 +21,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/orders")
-class OrderController(@Autowired private val orderService: OrderService) {
+class OrderController(private val orderService: OrderService) {
 
     @PostMapping
     fun createOrder(@RequestBody @Validated orderDto: OrderDto): ResponseEntity<OrderDto> {

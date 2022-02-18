@@ -17,13 +17,15 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Async
+import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
 import java.util.UUID
 
-open class OrderPostProcessor(
+@Component
+class OrderPostProcessor(
     private val orderRepository: OrderRepository,
     private val productServiceAdapter: ProductServiceAdapter,
     private val applicationEventPublisher: ApplicationEventPublisher
@@ -35,7 +37,7 @@ open class OrderPostProcessor(
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    open fun process(event: OrderInitiatedEvent) {
+    fun process(event: OrderInitiatedEvent) {
         findOrder(event.orderId) then
             ::decorate then
             ::validate then

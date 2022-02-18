@@ -5,7 +5,6 @@ import com.example.warehouse.inventory.article.models.ArticlesPageDto
 import com.example.warehouse.inventory.article.models.PageDto
 import com.example.warehouse.inventory.data.Article
 import com.example.warehouse.inventory.service.ArticleService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -22,7 +21,9 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/inventory/articles")
-class ArticleController(@Autowired private val articleService: ArticleService) {
+class ArticleController(
+    private val articleService: ArticleService
+) {
 
     @PostMapping
     fun createArticle(@RequestBody @Validated articleDto: ArticleDto): ResponseEntity<ArticleDto> {

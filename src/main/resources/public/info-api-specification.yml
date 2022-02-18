@@ -7,7 +7,7 @@ info:
     email: reachanteneh@gmail.com
   version: v0.1
 servers:
-  - url: http://localhost:8080/api/v1
+  - url: http://localhost:9090/
     description: local dev environment
 security:
   - BasicAuth: [ ]

@@ -6,10 +6,12 @@ import com.example.warehouse.order.data.Order
 import com.example.warehouse.order.data.OrderRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
 import java.util.UUID
 import javax.transaction.Transactional
 
-open class OrderService(
+@Service
+class OrderService(
     private val orderRepository: OrderRepository,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {

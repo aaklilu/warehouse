@@ -3,7 +3,6 @@ package com.example.warehouse.product.api.v1
 import com.example.warehouse.product.models.ProductCatalogueDto
 import com.example.warehouse.product.models.ProductDto
 import com.example.warehouse.product.service.ProductService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/product-catalogue")
-class ProductCatalogueController(@Autowired private val productService: ProductService) {
+class ProductCatalogueController(private val productService: ProductService) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

@@ -5,7 +5,6 @@ import com.example.warehouse.product.models.PageDto
 import com.example.warehouse.product.models.ProductDto
 import com.example.warehouse.product.models.ProductsPageDto
 import com.example.warehouse.product.service.ProductService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -22,7 +21,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/products")
-class ProductController(@Autowired private val productService: ProductService) {
+class ProductController(private val productService: ProductService) {
 
     @PostMapping
     fun createProduct(@RequestBody @Validated productDto: ProductDto): ResponseEntity<ProductDto> {
