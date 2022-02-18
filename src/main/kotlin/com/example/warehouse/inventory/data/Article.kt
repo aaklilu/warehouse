@@ -1,7 +1,6 @@
 package com.example.warehouse.inventory.data
 
 import org.springframework.data.annotation.CreatedDate
-import org.springframework.data.domain.AbstractAggregateRoot
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.persistence.Column
@@ -15,7 +14,7 @@ import javax.persistence.Table
 @Table(
     name = "article",
     indexes = [
-        Index(name = "idx_article__article_id_name", columnList = "articleId,name")
+        Index(name = "idx_article__article_id_name", columnList = "articleId, name")
     ]
 )
 class Article(
@@ -23,5 +22,5 @@ class Article(
     @Column(nullable = false, unique = true) var articleId: String,
     @Column(nullable = false) var name: String,
     @Column(nullable = false) var stockLevel: Int = 0,
-    @CreatedDate var createdDate: LocalDateTime? = null
-) : AbstractAggregateRoot<Article>()
+    @CreatedDate var createdAt: LocalDateTime? = null
+)

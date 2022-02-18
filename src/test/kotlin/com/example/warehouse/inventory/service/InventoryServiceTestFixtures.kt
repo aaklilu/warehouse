@@ -3,11 +3,11 @@ package com.example.warehouse.inventory.service
 import com.example.warehouse.inventory.data.Article
 import java.util.UUID
 
-val TEST_ARTICLE_ID = UUID.randomUUID()
+const val TEST_ARTICLE_ID = "9999"
 val testArticle: Article
     get() = Article(
-        id = TEST_ARTICLE_ID,
+        id = UUID.randomUUID(),
         name = "Test",
         stockLevel = 10,
-        articleId = "2"
+        articleId = TEST_ARTICLE_ID
     )

@@ -1,7 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
     id("org.springframework.boot") version "2.6.3"
@@ -28,12 +29,9 @@ repositories {
 }
 
 extra["testcontainersVersion"] = "1.16.2"
-extra["springmockkVersion"] = "3.1.0"
-extra["detektFormattingVersion"] = "1.19.0"
-extra["awatilityVersion"] = "4.1.1"
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektFormattingVersion")}")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -47,11 +45,11 @@ dependencies {
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.ninja-squad:springmockk:${property("springmockkVersion")}")
+    testImplementation("com.ninja-squad:springmockk:3.1.0")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation("org.testcontainers:postgresql")
-    testImplementation("org.awaitility:awaitility-kotlin:${property("awatilityVersion")}")
+    testImplementation("org.awaitility:awaitility-kotlin:4.1.1")
 }
 
 dependencyManagement {
@@ -83,18 +81,11 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
 }
 
-tasks.register<GenerateTask>("generateInventoryDTOs") {
-    doFirst { project.delete(project.fileTree("$buildDir/generated/src/inventory")) }
-    inputSpec.set("$projectDir/src/main/resources/public/inventory-api-specification.yml")
-    packageName.set("com.example.warehouse.inventory")
-    configOptions.putAll(mapOf("sourceFolder" to "generated/src/inventory"))
-}
-
 tasks.register<GenerateTask>("generateInventoryArticleDTOs") {
-    doFirst { project.delete(project.fileTree("$buildDir/generated/src/inventory-article")) }
+    doFirst { project.delete(project.fileTree("$buildDir/generated/src/inventory/article")) }
     inputSpec.set("$projectDir/src/main/resources/public/inventory-articles-api-specification.yml")
     packageName.set("com.example.warehouse.inventory.article")
-    configOptions.putAll(mapOf("sourceFolder" to "generated/src/inventory-article"))
+    configOptions.putAll(mapOf("sourceFolder" to "generated/src/inventory/article"))
 }
 
 tasks.register<GenerateTask>("generateProductApiDTOs") {
@@ -113,8 +104,7 @@ tasks.register<GenerateTask>("generateOrderApiDTOs") {
 
 tasks.register("generateOpenApiSpecificationDTOs") {
     dependsOn(
-        "generateInventoryDTOs"
-        ,"generateInventoryArticleDTOs"
+        "generateInventoryArticleDTOs"
         ,"generateProductApiDTOs"
         ,"generateOrderApiDTOs"
     )
@@ -123,8 +113,7 @@ tasks.register("generateOpenApiSpecificationDTOs") {
 kotlin {
     sourceSets["main"].apply {
         kotlin.srcDirs(
-            "$buildDir/generated/src/inventory"
-            ,"$buildDir/generated/src/inventory-article"
+            "$buildDir/generated/src/inventory/article"
             ,"$buildDir/generated/src/product"
             ,"$buildDir/generated/src/order"
         )

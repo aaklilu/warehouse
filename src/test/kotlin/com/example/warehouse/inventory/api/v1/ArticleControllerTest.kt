@@ -7,6 +7,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDateTime
 import java.util.UUID
 
+@WebMvcTest(ArticleController::class)
 class ArticleControllerTest(@Autowired private val mockMvc: MockMvc) : BaseControllerTest() {
     @MockkBean
     private lateinit var articleService: ArticleService
@@ -29,8 +32,9 @@ class ArticleControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
             name = "leg",
             stockLevel = 12,
             articleId = "1",
-            createdDate = LocalDateTime.now()
+            createdAt = LocalDateTime.now()
         )
+        val articleJson = ClassPathResource("article.json").file.readText()
 
         mockMvc.perform(
             post("/api/v1/inventory/articles")

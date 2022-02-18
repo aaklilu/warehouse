@@ -1,6 +1,6 @@
 package com.example.warehouse.inventory.service
 
-import com.example.warehouse.inventory.InventoryLevelChangedEvent
+import com.example.warehouse.event.v1.InventoryLevelChangedEvent
 import com.example.warehouse.inventory.data.ArticleRepository
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.context.ApplicationEventPublisher
-import java.lang.IllegalArgumentException
 import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)
@@ -27,7 +26,7 @@ internal class ArticleServiceTest {
     @BeforeEach
     fun setup() {
         articleService = ArticleService(articleRepository, applicationEventPublisher)
-        every { articleRepository.getById(TEST_ARTICLE_ID) } returns testArticle
+        every { articleRepository.findByArticleId(TEST_ARTICLE_ID) } returns testArticle
         every { articleRepository.save(any()) } returns testArticle
         every { applicationEventPublisher.publishEvent(any<InventoryLevelChangedEvent>()) } returns Unit
     }

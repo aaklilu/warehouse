@@ -6,13 +6,41 @@ info:
     email: reachanteneh@gmail.com
   version: v0.1
 servers:
-  - url: http://localhost:8083/api/v1
+  - url: http://localhost:8080/api/v1
     description: local dev environment
 security:
   - BasicAuth: [ ]
 tags:
   - name: inventory-api
 paths:
+  /inventory:
+    post:
+      tags:
+        - inventory-api
+      summary: Create inventory articles
+      operationId: createArticles
+      requestBody:
+        description: inventory article bulk endpoint
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryArticles'
+        required: true
+      responses:
+        201:
+          description: Created
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+        404:
+          description: Not Found
+          content: { }
+        '5XX':
+          description: Unexpected error.
   /inventory/articles:
     get:
       tags:
@@ -180,3 +208,14 @@ components:
           type: integer
           format: int32
           default: 0
+    InventoryArticles:
+      title: Inventory Articles
+      type: object
+      required: [ inventory ]
+      properties:
+        inventory:
+          title: Array of Articles
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Article'

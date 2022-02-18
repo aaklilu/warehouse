@@ -1,0 +1,13 @@
+{
+  "customer": {
+    "name": "test",
+    "phone": "012",
+    "address": "Amsterdam 123"
+  },
+  "line_items": [
+    {
+      "product_id": "6ec538e9-0052-4e96-89c5-32eae4b03037",
+      "quantity": "2"
+    }
+  ]
+}

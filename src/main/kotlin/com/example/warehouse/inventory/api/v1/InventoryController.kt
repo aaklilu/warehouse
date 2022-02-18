@@ -1,7 +1,7 @@
 package com.example.warehouse.inventory.api.v1
 
-import com.example.warehouse.inventory.models.ArticleDto
-import com.example.warehouse.inventory.models.InventoryArticlesDto
+import com.example.warehouse.inventory.article.models.ArticleDto
+import com.example.warehouse.inventory.article.models.InventoryArticlesDto
 import com.example.warehouse.inventory.service.ArticleService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

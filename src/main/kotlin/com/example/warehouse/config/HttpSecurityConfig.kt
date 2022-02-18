@@ -29,9 +29,15 @@ class HttpSecurityConfig {
                 securityMatcher("/api/v1")
                 authorizeRequests {
                     authorize(HttpMethod.POST, "/inventory/articles", hasRole("ADMIN"))
-                    authorize("/inventory/articles", hasAnyRole("ADMIN", "USER"))
+                    authorize(HttpMethod.GET, "/inventory/articles", permitAll)
                     authorize(HttpMethod.POST, "/inventory", hasRole("ADMIN"))
-                    authorize(anyRequest, fullyAuthenticated)
+                    authorize(HttpMethod.POST, "/product-catalogue", hasRole("ADMIN"))
+                    authorize(HttpMethod.POST, "/products", hasRole("ADMIN"))
+                    authorize(HttpMethod.GET, "/products", permitAll)
+                    authorize("/orders/{\\d+}", permitAll)
+                    authorize(HttpMethod.POST, "/orders", permitAll)
+                    authorize(HttpMethod.GET, "/orders", authenticated)
+                    authorize(anyRequest, authenticated)
                 }
                 httpBasic { }
             }

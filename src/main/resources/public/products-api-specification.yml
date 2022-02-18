@@ -6,13 +6,39 @@ info:
     email: reachanteneh@gmail.com
   version: v0.1
 servers:
-  - url: http://localhost:8083/api/v1
+  - url: http://localhost:8080/api/v1
     description: local dev environment
 security:
   - BasicAuth: [ ]
 tags:
   - name: products-api
 paths:
+  /product-catalogue:
+    post:
+      tags:
+        - product-catalogue-api
+      summary: Create Products
+      operationId: createProducts
+      requestBody:
+        description: products
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCatalogue'
+        required: true
+      responses:
+        201:
+          description: Created
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        403:
+          description: Forbidden
+          content: { }
+        404:
+          description: Not Found
+          content: { }
   /products:
     get:
       tags:
@@ -166,8 +192,11 @@ components:
     Product:
       title: Product
       type: object
-      required: [ name ]
+      required: [ name, price, contain_articles ]
       properties:
+        id:
+          type: string
+          format: uuid
         name:
           type: string
         identifier:
@@ -175,19 +204,33 @@ components:
         price:
           type: number
           format: double
+          default: 0.0
         available_quantity:
           type: integer
           format: int32
         contain_articles:
           type: array
+          minItems: 1
           items:
             $ref: '#/components/schemas/ContainArticle'
     ContainArticle:
       title: ContainArticle
+      required: [ art_id, amount_of ]
       type: object
       properties:
-        article_id:
+        art_id:
           type: string
         amount_of:
           type: integer
           format: int32
+    ProductCatalogue:
+      title: Products
+      type: object
+      required: [ products ]
+      properties:
+        products:
+          title: Array of Products
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Product'
