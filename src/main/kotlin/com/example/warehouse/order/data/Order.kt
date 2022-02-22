@@ -30,8 +30,7 @@ class Order(
     @Embedded var customer: Customer,
     @Column(nullable = false) var name: String? = null,
     @Enumerated(EnumType.STRING) @Column(nullable = false) var status: OrderStatus = OrderStatus.INITIATED,
-    var statusMessage: String? = null,
-    @CreatedDate var createdAt: LocalDateTime? = null
+    var statusMessage: String? = null
 ) {
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL])
@@ -51,4 +50,7 @@ class Order(
     fun setOrderName() {
         this.name = customer.name + lineItems.joinToString("_") { it.productName ?: "" }
     }
+
+    @CreatedDate
+    var createdAt: LocalDateTime? = null
 }

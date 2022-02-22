@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDateTime
 import java.util.UUID
 
 @WebMvcTest(OrderController::class)
@@ -33,7 +32,6 @@ class OrderControllerTest(@Autowired private val mockMvc: MockMvc) : BaseControl
         every { orderService.createOrder(any()) } returns Order(
             id = UUID.randomUUID(),
             name = "test_",
-            createdAt = LocalDateTime.now(),
             customer = Customer(name = "test", phone = "012", address = "Amsterdam 123")
         ).also {
             it.lineItems = listOf(
@@ -67,7 +65,6 @@ class OrderControllerTest(@Autowired private val mockMvc: MockMvc) : BaseControl
         every { orderService.getOrder(orderId) } returns Order(
             id = orderId,
             name = "test_",
-            createdAt = LocalDateTime.now(),
             customer = Customer(name = "test", phone = "012", address = "Amsterdam 123")
         ).also {
             it.lineItems = listOf(
@@ -101,7 +98,6 @@ class OrderControllerTest(@Autowired private val mockMvc: MockMvc) : BaseControl
             listOf(Order(
             id = orderId,
             name = "test_",
-            createdAt = LocalDateTime.now(),
             customer = Customer(name = "test", phone = "012", address = "Amsterdam 123")
             ).also {
             it.lineItems = listOf(

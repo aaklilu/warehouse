@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDateTime
 import java.util.UUID
 
 @WebMvcTest(ArticleController::class)
@@ -31,8 +30,7 @@ class ArticleControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
             id = UUID.randomUUID(),
             name = "leg",
             stockLevel = 12,
-            articleId = "1",
-            createdAt = LocalDateTime.now()
+            articleId = "1"
         )
         val articleJson = ClassPathResource("article.json").file.readText()
 
@@ -53,8 +51,7 @@ class ArticleControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
             id = UUID.randomUUID(),
             name = "leg",
             stockLevel = 12,
-            articleId = "1",
-            createdAt = LocalDateTime.now()
+            articleId = "1"
         )
         val articleJson = ClassPathResource("article.json").file.readText()
 

@@ -13,6 +13,7 @@ internal fun ProductDto.toProduct() = Product(
 }
 
 internal fun Product.toProductDto() = ProductDto(
+    id = this.id,
     name = this.name,
     price = this.price,
     availableQuantity = this.availableQuantity,

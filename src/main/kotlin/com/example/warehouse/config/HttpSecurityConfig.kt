@@ -29,15 +29,15 @@ class HttpSecurityConfig {
             http {
                 securityMatcher("/api/v1/**")
                 authorizeRequests {
-                    authorize(HttpMethod.POST, "inventory/articles", hasRole("ADMIN"))
-                    authorize(HttpMethod.GET, "inventory/articles", permitAll)
-                    authorize(HttpMethod.POST, "inventory", hasRole("ADMIN"))
-                    authorize(HttpMethod.POST, "product-catalogue", hasRole("ADMIN"))
-                    authorize(HttpMethod.POST, "products", hasRole("ADMIN"))
-                    authorize(HttpMethod.GET, "products", permitAll)
-                    authorize(HttpMethod.GET, "orders", hasAnyRole("ADMIN", "CUSTOMER_SERVICE"))
-                    authorize(HttpMethod.GET,"orders/**", permitAll)
-                    authorize(HttpMethod.POST, "orders", permitAll)
+                    authorize(HttpMethod.POST, "**/inventory/articles", hasRole("ADMIN"))
+                    authorize(HttpMethod.GET, "**/inventory/articles", permitAll)
+                    authorize(HttpMethod.POST, "**/inventory", hasRole("ADMIN"))
+                    authorize(HttpMethod.POST, "**/product-catalogue", hasRole("ADMIN"))
+                    authorize(HttpMethod.POST, "**/products", hasRole("ADMIN"))
+                    authorize(HttpMethod.GET, "**/products/**", permitAll)
+                    authorize(HttpMethod.GET, "**/orders", hasAnyRole("ADMIN", "CUSTOMER_SERVICE"))
+                    authorize(HttpMethod.GET,"**/orders/{\\d+}", permitAll)
+                    authorize(HttpMethod.POST, "**/orders", permitAll)
                     authorize(anyRequest, authenticated)
                 }
                 httpBasic { }
