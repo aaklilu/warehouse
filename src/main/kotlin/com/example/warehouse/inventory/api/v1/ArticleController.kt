@@ -5,12 +5,16 @@ import com.example.warehouse.inventory.article.models.ArticlesPageDto
 import com.example.warehouse.inventory.article.models.PageDto
 import com.example.warehouse.inventory.data.Article
 import com.example.warehouse.inventory.service.ArticleService
+import org.springframework.core.env.Environment
+import org.springframework.core.env.Profiles
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -22,7 +26,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/v1/inventory/articles")
 class ArticleController(
-    private val articleService: ArticleService
+    private val articleService: ArticleService,
+    private val environment: Environment
 ) {
 
     @PostMapping
@@ -55,5 +60,14 @@ class ArticleController(
                 )
             )
         )
+    }
+
+    @DeleteMapping
+    fun deleteAll(): HttpStatus {
+        if(environment.acceptsProfiles(Profiles.of("dev", "test"))){
+            articleService.deleteAll()
+            return HttpStatus.OK
+        }
+        return HttpStatus.METHOD_NOT_ALLOWED
     }
 }

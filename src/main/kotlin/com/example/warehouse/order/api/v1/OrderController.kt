@@ -5,12 +5,16 @@ import com.example.warehouse.order.models.OrderDto
 import com.example.warehouse.order.models.OrdersPageDto
 import com.example.warehouse.order.models.PageDto
 import com.example.warehouse.order.service.OrderService
+import org.springframework.core.env.Environment
+import org.springframework.core.env.Profiles
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,7 +25,10 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/orders")
-class OrderController(private val orderService: OrderService) {
+class OrderController(
+    private val orderService: OrderService,
+    private val environment: Environment
+    ) {
 
     @PostMapping
     fun createOrder(@RequestBody @Validated orderDto: OrderDto): ResponseEntity<OrderDto> {
@@ -53,5 +60,14 @@ class OrderController(private val orderService: OrderService) {
                 )
             )
         )
+    }
+
+    @DeleteMapping
+    fun deleteAll(): HttpStatus {
+        if(environment.acceptsProfiles(Profiles.of("dev", "test"))){
+            orderService.deleteAll()
+            return HttpStatus.OK
+        }
+        return HttpStatus.METHOD_NOT_ALLOWED
     }
 }

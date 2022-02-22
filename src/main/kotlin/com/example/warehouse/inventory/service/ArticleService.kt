@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
-import javax.transaction.Transactional
 
 @Service
 class ArticleService(
@@ -46,5 +46,10 @@ class ArticleService(
                 applicationEventPublisher.publishEvent(InventoryLevelChangedEvent(it.articleId, it.stockLevel))
             }
         }
+    }
+
+    @Transactional
+    fun deleteAll() {
+        articleRepository.deleteAll()
     }
 }

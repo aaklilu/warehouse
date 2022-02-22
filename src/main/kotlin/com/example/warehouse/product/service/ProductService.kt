@@ -5,8 +5,8 @@ import com.example.warehouse.product.data.ProductRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
-import javax.transaction.Transactional
 
 @Service
 class ProductService(
@@ -28,5 +28,10 @@ class ProductService(
     @Transactional
     fun updateProductArticleStockLevel(articleId: String, stockLevel: Int) {
         productRepository.updateProductArticleStockLevels(articleId, stockLevel)
+    }
+
+    @Transactional
+    fun deleteAll() {
+        productRepository.deleteAll()
     }
 }

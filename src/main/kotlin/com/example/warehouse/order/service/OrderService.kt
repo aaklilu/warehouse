@@ -7,8 +7,8 @@ import com.example.warehouse.order.data.OrderRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
-import javax.transaction.Transactional
 
 @Service
 class OrderService(
@@ -16,7 +16,7 @@ class OrderService(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
     @Transactional
-    open fun createOrder(order: Order) = orderRepository.save(order).also {
+    fun createOrder(order: Order) = orderRepository.save(order).also {
         applicationEventPublisher.publishEvent(
             OrderInitiatedEvent(
                 orderId = it.id!!,
@@ -28,4 +28,9 @@ class OrderService(
     }
     fun getOrder(id: UUID) = orderRepository.getById(id)
     fun findOrders(pageable: Pageable) = orderRepository.findAll(pageable)
+
+    @Transactional
+    fun deleteAll() {
+        orderRepository.deleteAll()
+    }
 }

@@ -46,4 +46,22 @@ class ArticleControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
             .andExpect(jsonPath("$.name").value("leg"))
             .andExpect(jsonPath("$.stock").value("12"))
     }
+
+    @Test
+    fun `when non admin user POST an article, then STATUS 403 is returned`() {
+        every { articleService.createArticle(any()) } returns Article(
+            id = UUID.randomUUID(),
+            name = "leg",
+            stockLevel = 12,
+            articleId = "1",
+            createdAt = LocalDateTime.now()
+        )
+        val articleJson = ClassPathResource("article.json").file.readText()
+
+        mockMvc.perform(
+            post("/api/v1/inventory/articles")
+                .content(articleJson).contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isUnauthorized)
+    }
 }

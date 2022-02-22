@@ -200,6 +200,9 @@ components:
       type: object
       required: [ art_id, name, stock ]
       properties:
+        id:
+          type: string
+          format: uuid
         art_id:
           type: string
         name:
