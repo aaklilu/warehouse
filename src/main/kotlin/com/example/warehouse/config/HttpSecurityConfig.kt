@@ -19,6 +19,7 @@ class HttpSecurityConfig {
         val manager = InMemoryUserDetailsManager()
         manager.createUser(users.username("user").password("password").roles("USER").build())
         manager.createUser(users.username("admin").password("password").roles("USER", "ADMIN").build())
+        manager.createUser(users.username("ops").password("password").roles("USER", "CUSTOMER_SERVICE").build())
         return manager
     }
 
@@ -26,20 +27,21 @@ class HttpSecurityConfig {
     class ApiWebSecurityConfigurationAdapter : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
-                securityMatcher("/api/v1")
+                securityMatcher("/api/v1/**")
                 authorizeRequests {
-                    authorize(HttpMethod.POST, "/inventory/articles", hasRole("ADMIN"))
-                    authorize(HttpMethod.GET, "/inventory/articles", permitAll)
-                    authorize(HttpMethod.POST, "/inventory", hasRole("ADMIN"))
-                    authorize(HttpMethod.POST, "/product-catalogue", hasRole("ADMIN"))
-                    authorize(HttpMethod.POST, "/products", hasRole("ADMIN"))
-                    authorize(HttpMethod.GET, "/products", permitAll)
-                    authorize("/orders/{\\d+}", permitAll)
-                    authorize(HttpMethod.POST, "/orders", permitAll)
-                    authorize(HttpMethod.GET, "/orders", authenticated)
+                    authorize(HttpMethod.POST, "**/inventory/articles", hasRole("ADMIN"))
+                    authorize(HttpMethod.GET, "**/inventory/articles", permitAll)
+                    authorize(HttpMethod.POST, "**/inventory", hasRole("ADMIN"))
+                    authorize(HttpMethod.POST, "**/product-catalogue", hasRole("ADMIN"))
+                    authorize(HttpMethod.POST, "**/products", hasRole("ADMIN"))
+                    authorize(HttpMethod.GET, "**/products/**", permitAll)
+                    authorize(HttpMethod.GET, "**/orders", hasAnyRole("ADMIN", "CUSTOMER_SERVICE"))
+                    authorize(HttpMethod.GET, "**/orders/{\\d+}", permitAll)
+                    authorize(HttpMethod.POST, "**/orders", permitAll)
                     authorize(anyRequest, authenticated)
                 }
                 httpBasic { }
+                csrf { disable() }
             }
         }
     }

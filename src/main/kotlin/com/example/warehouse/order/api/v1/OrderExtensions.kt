@@ -15,6 +15,7 @@ internal fun OrderDto.toOrder() = Order(
 }
 
 internal fun Order.toOrderDto() = OrderDto(
+    id = this.id,
     name = this.name!!,
     customer = CustomerDto(this.customer.name, this.customer.phone, this.customer.address),
     lineItems = this.lineItems.map(LineItem::toLineItemDto)

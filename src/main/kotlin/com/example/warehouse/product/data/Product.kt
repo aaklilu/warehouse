@@ -23,8 +23,7 @@ import javax.persistence.Table
 class Product(
     @Id @GeneratedValue var id: UUID? = null,
     @Column(nullable = false) var name: String,
-    @Column(nullable = false) var price: Double = 0.0,
-    @CreatedDate var createdAt: LocalDateTime? = null
+    @Column(nullable = false) var price: Double = 0.0
 ) {
 
     @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL])
@@ -35,4 +34,7 @@ class Product(
 
     @Formula("(select min(pa.stock_level/pa.amount_of) from product_article as pa where pa.product_id = id)")
     val availableQuantity: Int = 0
+
+    @CreatedDate
+    var createdAt: LocalDateTime? = null
 }

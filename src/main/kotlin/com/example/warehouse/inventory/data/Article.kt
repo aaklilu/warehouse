@@ -21,6 +21,8 @@ class Article(
     @Id @GeneratedValue var id: UUID? = null,
     @Column(nullable = false, unique = true) var articleId: String,
     @Column(nullable = false) var name: String,
-    @Column(nullable = false) var stockLevel: Int = 0,
-    @CreatedDate var createdAt: LocalDateTime? = null
-)
+    @Column(nullable = false) var stockLevel: Int = 0
+) {
+    @CreatedDate
+    var createdAt: LocalDateTime? = null
+}

@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDateTime
 import java.util.UUID
 
 @WebMvcTest(ProductController::class)
@@ -30,8 +29,7 @@ class ProductControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
     fun `when POST a product, then STATUS 200 is returned`() {
         every { productService.createProduct(any()) } returns Product(
             id = UUID.randomUUID(),
-            name = "Dining Chair",
-            createdAt = LocalDateTime.now()
+            name = "Dining Chair"
         ).also {
             it.articles = listOf(ProductArticle(articleId = "1", amountOf = 4))
         }
@@ -46,5 +44,28 @@ class ProductControllerTest(@Autowired private val mockMvc: MockMvc) : BaseContr
             .andExpect(jsonPath("$.name").value("Dining Chair"))
             .andExpect(jsonPath("$.contain_articles[0].art_id").value("1"))
             .andExpect(jsonPath("$.contain_articles[0].amount_of").value("4"))
+    }
+
+    @Test
+    fun `when unauthenticated user POST a product, then STATUS 401 is returned`() {
+        val articleJson = ClassPathResource("product.json").file.readText()
+
+        mockMvc.perform(
+            post("/api/v1/products")
+                .content(articleJson).contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    @WithMockUser
+    fun `when unauthorized user POST a product, then STATUS 403 is returned`() {
+        val articleJson = ClassPathResource("product.json").file.readText()
+
+        mockMvc.perform(
+            post("/api/v1/products")
+                .content(articleJson).contentType(MediaType.APPLICATION_JSON)
+        )
+            .andExpect(status().isForbidden)
     }
 }

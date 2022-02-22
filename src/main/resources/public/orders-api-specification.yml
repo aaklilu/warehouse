@@ -164,6 +164,9 @@ components:
       type: object
       required: [ customer, line_items ]
       properties:
+        id:
+          type: string
+          format: uuid
         name:
           type: string
         customer:

@@ -10,6 +10,7 @@ internal fun ArticleDto.toArticle() = Article(
 )
 
 internal fun Article.toArticleDto() = ArticleDto(
+    id = this.id,
     artId = this.articleId,
     name = this.name,
     stock = this.stockLevel

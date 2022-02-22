@@ -1,10 +1,11 @@
 package com.example.warehouse
 
-import com.example.warehouse.inventory.data.ArticleRepository
+import com.example.warehouse.inventory.article.models.ArticleDto
+import com.example.warehouse.inventory.article.models.ArticlesPageDto
 import com.example.warehouse.order.models.LineItemDto
 import com.example.warehouse.order.models.OrderDto
-import com.example.warehouse.product.data.Product
-import com.example.warehouse.product.data.ProductRepository
+import com.example.warehouse.product.models.ProductDto
+import com.example.warehouse.product.models.ProductsPageDto
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.withPollInterval
 import org.awaitility.pollinterval.FixedPollInterval
@@ -31,7 +32,6 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -39,8 +39,6 @@ import kotlin.test.assertTrue
 @ActiveProfiles("test")
 @Tag("integration")
 class WarehouseApplicationTests(
-    @Autowired private val articleRepository: ArticleRepository,
-    @Autowired private val productRepository: ProductRepository,
     @Autowired private val testRestTemplate: TestRestTemplate
 ) {
     companion object {
@@ -54,6 +52,12 @@ class WarehouseApplicationTests(
             registry.add("spring.datasource.username", postgresContainer::getUsername)
             registry.add("spring.datasource.password", postgresContainer::getPassword)
         }
+
+        const val V1_INVENTORY_PATH = "/api/v1/inventory"
+        const val V1_ARTICLES_PATH = "/api/v1/inventory/articles"
+        const val V1_PRODUCT_CATALOGUE_PATH = "/api/v1/product-catalogue"
+        const val V1_PRODUCTS_PATH = "/api/v1/products"
+        const val V1_ORDERS_PATH = "/api/v1/orders"
     }
 
     private val headers = HttpHeaders().apply {
@@ -63,8 +67,9 @@ class WarehouseApplicationTests(
     @AfterEach
     @BeforeEach
     fun setup() {
-        articleRepository.deleteAll()
-        productRepository.deleteAll()
+        testRestTemplate.delete(V1_ARTICLES_PATH)
+        testRestTemplate.delete(V1_PRODUCTS_PATH)
+        testRestTemplate.delete(V1_ORDERS_PATH)
     }
 
     @Test
@@ -72,30 +77,18 @@ class WarehouseApplicationTests(
         val inventoryJson = ClassPathResource("inventory.json").file.readText()
         var status = testRestTemplate
             .withBasicAuth(admin.username, admin.password)
-            .postForEntity(
-                "/api/v1/inventory",
-                HttpEntity(inventoryJson, headers), String::class.java
-            ).statusCode
+            .postForEntity(V1_INVENTORY_PATH, HttpEntity(inventoryJson, headers), String::class.java).statusCode
 
         assertEquals(HttpStatus.CREATED, status)
+        val articles = getArticles()
 
         val productsJson = ClassPathResource("products.json").file.readText()
         status = testRestTemplate
             .withBasicAuth(admin.username, admin.password)
-            .postForEntity(
-                "/api/v1/product-catalogue",
-                HttpEntity(productsJson, headers), String::class.java
-            ).statusCode
+            .postForEntity(V1_PRODUCT_CATALOGUE_PATH, HttpEntity(productsJson, headers), String::class.java).statusCode
 
         assertEquals(HttpStatus.CREATED, status)
-        var products = emptyList<Product>()
-        (
-            (await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
-                .atMost(Duration.of(10, ChronoUnit.SECONDS))
-            ).untilAsserted {
-            products = productRepository.findAll()
-            assertTrue(products.isNotEmpty())
-        }
+        val products = getProducts()
 
         val dinningChair = products.find { it.name == "Dining Chair" }!!
         val dinningTable = products.find { it.name == "Dinning Table" }!!
@@ -106,34 +99,51 @@ class WarehouseApplicationTests(
                 LineItemDto(productId = dinningTable.id.toString(), 1)
             )
         )
-        val response = testRestTemplate
-            .withBasicAuth(admin.username, admin.password)
-            .postForEntity(
-                "/api/v1/orders",
-                HttpEntity(orderDto, headers), OrderDto::class.java
-            )
+        val orderResponse = testRestTemplate
+            .postForEntity(V1_ORDERS_PATH, HttpEntity(orderDto, headers), OrderDto::class.java)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(HttpStatus.OK, orderResponse.statusCode)
+        assertEquals(
+            orderResponse.body?.id,
+            testRestTemplate.getById(V1_ORDERS_PATH, orderResponse.body?.id!!, OrderDto::class.java)?.body?.id
+        )
 
         (
             (await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
                 .atMost(Duration.of(30, ChronoUnit.SECONDS))
             ).untilAsserted {
-            val leg = articleRepository.findByArticleId("1")
-            val screw = articleRepository.findByArticleId("2")
-            val seat = articleRepository.findByArticleId("3")
-            val tableTop = articleRepository.findByArticleId("4")
+            val leg = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "1" }?.id!!, ArticleDto::class.java)?.body
+            val screw = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "2" }?.id!!, ArticleDto::class.java)?.body
+            val seat = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "3" }?.id!!, ArticleDto::class.java)?.body
+            val tableTop = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "4" }?.id!!, ArticleDto::class.java)?.body
 
-            assertEquals(4, leg.stockLevel) // stock(12) - (chair(4) + table (4)) = 4
-            assertEquals(8, screw.stockLevel) // stock(24) - (chair(8) + table (8)) = 8
-            assertEquals(1, seat.stockLevel) // stock(2) - (chair(1) + table (0)) = 1
-            assertEquals(0, tableTop.stockLevel) // stock(1) - (chair(0) + table (1)) = 0
+            assertEquals(4, leg?.stock) // stock(12) - (chair(4) + table (4)) = 4
+            assertEquals(8, screw?.stock) // stock(24) - (chair(8) + table (8)) = 8
+            assertEquals(1, seat?.stock) // stock(2) - (chair(1) + table (0)) = 1
+            assertEquals(0, tableTop?.stock) // stock(1) - (chair(0) + table (1)) = 0
 
-            val updatedChair = productRepository.getById(dinningChair.id!!)
-            val updatedTable = productRepository.getById(dinningTable.id!!)
+            val updatedChair = testRestTemplate
+                .getForEntity("$V1_PRODUCTS_PATH/${dinningChair.id!!}", ProductDto::class.java).body
+            val updatedTable = testRestTemplate
+                .getForEntity("$V1_PRODUCTS_PATH/${dinningTable.id!!}", ProductDto::class.java).body
 
-            assertEquals(1, updatedChair.availableQuantity)
-            assertEquals(0, updatedTable.availableQuantity)
+            assertEquals(1, updatedChair?.availableQuantity)
+            assertEquals(0, updatedTable?.availableQuantity)
         }
     }
+
+    private fun getArticles() = testRestTemplate
+        .withBasicAuth(admin.username, admin.password)
+        .awaitUntilAndGet(path = V1_ARTICLES_PATH, clazz = ArticlesPageDto::class.java) {
+            it != null && it.items.orEmpty().isNotEmpty()
+        }.items!!
+
+    private fun getProducts() = testRestTemplate
+        .awaitUntilAndGet(path = V1_PRODUCTS_PATH, clazz = ProductsPageDto::class.java) {
+            it != null && it.items.orEmpty().isNotEmpty()
+        }.items!!
 }
