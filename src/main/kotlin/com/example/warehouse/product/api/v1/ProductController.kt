@@ -28,7 +28,7 @@ import java.util.UUID
 class ProductController(
     private val productService: ProductService,
     private val environment: Environment
-    ) {
+) {
 
     @PostMapping
     fun createProduct(@RequestBody @Validated productDto: ProductDto): ResponseEntity<ProductDto> {
@@ -41,7 +41,7 @@ class ProductController(
     }
 
     @GetMapping
-    fun findProducts(@PageableDefault(page = 0, size = 100) page: Pageable, ): ResponseEntity<ProductsPageDto> {
+    fun findProducts(@PageableDefault(page = 0, size = 100) page: Pageable,): ResponseEntity<ProductsPageDto> {
         val pageRequest = PageRequest.of(
             page.pageNumber, page.pageSize,
             page.getSortOr(

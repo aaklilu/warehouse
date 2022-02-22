@@ -28,7 +28,7 @@ import java.util.UUID
 class OrderController(
     private val orderService: OrderService,
     private val environment: Environment
-    ) {
+) {
 
     @PostMapping
     fun createOrder(@RequestBody @Validated orderDto: OrderDto): ResponseEntity<OrderDto> {
@@ -64,7 +64,7 @@ class OrderController(
 
     @DeleteMapping
     fun deleteAll(): HttpStatus {
-        if(environment.acceptsProfiles(Profiles.of("dev", "test"))){
+        if (environment.acceptsProfiles(Profiles.of("dev", "test"))) {
             orderService.deleteAll()
             return HttpStatus.OK
         }

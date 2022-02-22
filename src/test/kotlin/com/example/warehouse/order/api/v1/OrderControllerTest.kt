@@ -95,19 +95,22 @@ class OrderControllerTest(@Autowired private val mockMvc: MockMvc) : BaseControl
     fun `when an admin requests for all Orders, then STATUS 200 is returned`() {
         val orderId = UUID.randomUUID()
         every { orderService.findOrders(any()) } returns PageImpl(
-            listOf(Order(
-            id = orderId,
-            name = "test_",
-            customer = Customer(name = "test", phone = "012", address = "Amsterdam 123")
-            ).also {
-            it.lineItems = listOf(
-                LineItem(
-                    productName = "Dinning Chair",
-                    productId = "6ec538e9-0052-4e96-89c5-32eae4b03037",
-                    quantity = 2
-                )
+            listOf(
+                Order(
+                    id = orderId,
+                    name = "test_",
+                    customer = Customer(name = "test", phone = "012", address = "Amsterdam 123")
+                ).also {
+                    it.lineItems = listOf(
+                        LineItem(
+                            productName = "Dinning Chair",
+                            productId = "6ec538e9-0052-4e96-89c5-32eae4b03037",
+                            quantity = 2
+                        )
+                    )
+                }
             )
-        }))
+        )
 
         mockMvc.perform(
             get("/api/v1/orders")

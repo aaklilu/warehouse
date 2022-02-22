@@ -77,30 +77,18 @@ class WarehouseApplicationTests(
         val inventoryJson = ClassPathResource("inventory.json").file.readText()
         var status = testRestTemplate
             .withBasicAuth(admin.username, admin.password)
-            .postForEntity(
-                V1_INVENTORY_PATH,
-                HttpEntity(inventoryJson, headers), String::class.java
-            ).statusCode
+            .postForEntity(V1_INVENTORY_PATH, HttpEntity(inventoryJson, headers), String::class.java).statusCode
 
         assertEquals(HttpStatus.CREATED, status)
-        val articles = testRestTemplate
-            .withBasicAuth(admin.username, admin.password)
-            .awaitUntilAndGet(path = V1_ARTICLES_PATH, clazz = ArticlesPageDto::class.java) {
-            it != null && it.items.orEmpty().isNotEmpty()
-        }.items!!
+        val articles = getArticles()
 
         val productsJson = ClassPathResource("products.json").file.readText()
         status = testRestTemplate
             .withBasicAuth(admin.username, admin.password)
-            .postForEntity(
-                V1_PRODUCT_CATALOGUE_PATH,
-                HttpEntity(productsJson, headers), String::class.java
-            ).statusCode
+            .postForEntity(V1_PRODUCT_CATALOGUE_PATH, HttpEntity(productsJson, headers), String::class.java).statusCode
 
         assertEquals(HttpStatus.CREATED, status)
-        val products = testRestTemplate.awaitUntilAndGet(path = V1_PRODUCTS_PATH, clazz = ProductsPageDto::class.java) {
-            it != null && it.items.orEmpty().isNotEmpty()
-        }.items!!
+        val products = getProducts()
 
         val dinningChair = products.find { it.name == "Dining Chair" }!!
         val dinningTable = products.find { it.name == "Dinning Table" }!!
@@ -112,39 +100,50 @@ class WarehouseApplicationTests(
             )
         )
         val orderResponse = testRestTemplate
-            .postForEntity(
-                V1_ORDERS_PATH,
-                HttpEntity(orderDto, headers), OrderDto::class.java
-            )
+            .postForEntity(V1_ORDERS_PATH, HttpEntity(orderDto, headers), OrderDto::class.java)
 
         assertEquals(HttpStatus.OK, orderResponse.statusCode)
-        assertEquals(orderResponse.body?.id, testRestTemplate.getById(V1_ORDERS_PATH, orderResponse.body?.id!!, OrderDto::class.java)?.body?.id)
+        assertEquals(
+            orderResponse.body?.id,
+            testRestTemplate.getById(V1_ORDERS_PATH, orderResponse.body?.id!!, OrderDto::class.java)?.body?.id
+        )
 
-        ((await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
-                .atMost(Duration.of(30, ChronoUnit.SECONDS)) ).untilAsserted {
-            val leg = testRestTemplate
-                .withBasicAuth(admin.username, admin.password)
-                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "1"}?.id!!, ArticleDto::class.java)?.body
-            val screw = testRestTemplate
-                .withBasicAuth(admin.username, admin.password)
-                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "2"}?.id!!, ArticleDto::class.java)?.body
-            val seat = testRestTemplate
-                .withBasicAuth(admin.username, admin.password)
-                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "3"}?.id!!, ArticleDto::class.java)?.body
-            val tableTop = testRestTemplate
-                .withBasicAuth(admin.username, admin.password)
-                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "4"}?.id!!, ArticleDto::class.java)?.body
+        (
+            (await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
+                .atMost(Duration.of(30, ChronoUnit.SECONDS))
+            ).untilAsserted {
+            val leg = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "1" }?.id!!, ArticleDto::class.java)?.body
+            val screw = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "2" }?.id!!, ArticleDto::class.java)?.body
+            val seat = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "3" }?.id!!, ArticleDto::class.java)?.body
+            val tableTop = testRestTemplate.withBasicAuth(admin.username, admin.password)
+                .getById(V1_ARTICLES_PATH, articles.find { it.artId == "4" }?.id!!, ArticleDto::class.java)?.body
 
             assertEquals(4, leg?.stock) // stock(12) - (chair(4) + table (4)) = 4
             assertEquals(8, screw?.stock) // stock(24) - (chair(8) + table (8)) = 8
             assertEquals(1, seat?.stock) // stock(2) - (chair(1) + table (0)) = 1
             assertEquals(0, tableTop?.stock) // stock(1) - (chair(0) + table (1)) = 0
 
-            val updatedChair =testRestTemplate.getForEntity("$V1_PRODUCTS_PATH/${dinningChair.id!!}", ProductDto::class.java).body
-            val updatedTable = testRestTemplate.getForEntity("$V1_PRODUCTS_PATH/${dinningTable.id!!}", ProductDto::class.java).body
+            val updatedChair = testRestTemplate
+                .getForEntity("$V1_PRODUCTS_PATH/${dinningChair.id!!}", ProductDto::class.java).body
+            val updatedTable = testRestTemplate
+                .getForEntity("$V1_PRODUCTS_PATH/${dinningTable.id!!}", ProductDto::class.java).body
 
             assertEquals(1, updatedChair?.availableQuantity)
             assertEquals(0, updatedTable?.availableQuantity)
         }
     }
+
+    private fun getArticles() = testRestTemplate
+        .withBasicAuth(admin.username, admin.password)
+        .awaitUntilAndGet(path = V1_ARTICLES_PATH, clazz = ArticlesPageDto::class.java) {
+            it != null && it.items.orEmpty().isNotEmpty()
+        }.items!!
+
+    private fun getProducts() = testRestTemplate
+        .awaitUntilAndGet(path = V1_PRODUCTS_PATH, clazz = ProductsPageDto::class.java) {
+            it != null && it.items.orEmpty().isNotEmpty()
+        }.items!!
 }

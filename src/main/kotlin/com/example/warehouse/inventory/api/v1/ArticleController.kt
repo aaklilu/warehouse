@@ -64,7 +64,7 @@ class ArticleController(
 
     @DeleteMapping
     fun deleteAll(): HttpStatus {
-        if(environment.acceptsProfiles(Profiles.of("dev", "test"))){
+        if (environment.acceptsProfiles(Profiles.of("dev", "test"))) {
             articleService.deleteAll()
             return HttpStatus.OK
         }
