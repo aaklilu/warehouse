@@ -6,6 +6,7 @@ import com.example.warehouse.order.data.Order
 import com.example.warehouse.order.models.CustomerDto
 import com.example.warehouse.order.models.LineItemDto
 import com.example.warehouse.order.models.OrderDto
+import com.example.warehouse.order.models.OrderStatusDto
 
 internal fun OrderDto.toOrder() = Order(
     name = this.name,
@@ -17,6 +18,8 @@ internal fun OrderDto.toOrder() = Order(
 internal fun Order.toOrderDto() = OrderDto(
     id = this.id,
     name = this.name!!,
+    status = OrderStatusDto.valueOf(this.status.name),
+    statusMessage = this.statusMessage,
     customer = CustomerDto(this.customer.name, this.customer.phone, this.customer.address),
     lineItems = this.lineItems.map(LineItem::toLineItemDto)
 )

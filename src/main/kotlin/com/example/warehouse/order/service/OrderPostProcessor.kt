@@ -71,6 +71,7 @@ class OrderPostProcessor(
     }
 
     private fun save(order: Order): ProcessResult<Order> {
+        order.status = OrderStatus.CREATED
         return Success(orderRepository.save(order))
     }
 

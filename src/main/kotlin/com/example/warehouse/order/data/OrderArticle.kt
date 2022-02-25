@@ -14,7 +14,7 @@ import javax.persistence.Table
 @Table(
     name = "product_order_article",
     indexes = [
-        Index(name = "idx_order_article__article_id", columnList = "articleId", unique = true),
+        Index(name = "idx_order_article__article_id", columnList = "articleId"),
         Index(name = "idx_order_article__order_id", columnList = "order_id")
     ]
 )

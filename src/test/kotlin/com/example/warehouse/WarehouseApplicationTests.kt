@@ -4,6 +4,7 @@ import com.example.warehouse.inventory.article.models.ArticleDto
 import com.example.warehouse.inventory.article.models.ArticlesPageDto
 import com.example.warehouse.order.models.LineItemDto
 import com.example.warehouse.order.models.OrderDto
+import com.example.warehouse.order.models.OrderStatusDto
 import com.example.warehouse.product.models.ProductDto
 import com.example.warehouse.product.models.ProductsPageDto
 import org.awaitility.kotlin.await
@@ -32,6 +33,7 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -103,11 +105,15 @@ class WarehouseApplicationTests(
             .postForEntity(V1_ORDERS_PATH, HttpEntity(orderDto, headers), OrderDto::class.java)
 
         assertEquals(HttpStatus.OK, orderResponse.statusCode)
-        assertEquals(
-            orderResponse.body?.id,
-            testRestTemplate.getById(V1_ORDERS_PATH, orderResponse.body?.id!!, OrderDto::class.java)?.body?.id
-        )
+        verifyStockLevels(articles)
+        verifyAvailableQuantity(dinningChair, dinningTable)
+        val order = testRestTemplate.getById(V1_ORDERS_PATH, orderResponse.body?.id!!, OrderDto::class.java)?.body
+        assertNotNull(order)
+        assertEquals(orderResponse.body?.id, order.id)
+        assertEquals(OrderStatusDto.CREATED, order.status)
+    }
 
+    private fun verifyStockLevels(articles: List<ArticleDto>) {
         (
             (await withPollInterval FixedPollInterval.fixed(5, TimeUnit.SECONDS))
                 .atMost(Duration.of(30, ChronoUnit.SECONDS))
@@ -125,15 +131,17 @@ class WarehouseApplicationTests(
             assertEquals(8, screw?.stock) // stock(24) - (chair(8) + table (8)) = 8
             assertEquals(1, seat?.stock) // stock(2) - (chair(1) + table (0)) = 1
             assertEquals(0, tableTop?.stock) // stock(1) - (chair(0) + table (1)) = 0
-
-            val updatedChair = testRestTemplate
-                .getForEntity("$V1_PRODUCTS_PATH/${dinningChair.id!!}", ProductDto::class.java).body
-            val updatedTable = testRestTemplate
-                .getForEntity("$V1_PRODUCTS_PATH/${dinningTable.id!!}", ProductDto::class.java).body
-
-            assertEquals(1, updatedChair?.availableQuantity)
-            assertEquals(0, updatedTable?.availableQuantity)
         }
+    }
+
+    private fun verifyAvailableQuantity(dinningChair: ProductDto, dinningTable: ProductDto) {
+        val updatedChair = testRestTemplate
+            .getForEntity("$V1_PRODUCTS_PATH/${dinningChair.id!!}", ProductDto::class.java).body
+        val updatedTable = testRestTemplate
+            .getForEntity("$V1_PRODUCTS_PATH/${dinningTable.id!!}", ProductDto::class.java).body
+
+        assertEquals(1, updatedChair?.availableQuantity)
+        assertEquals(0, updatedTable?.availableQuantity)
     }
 
     private fun getArticles() = testRestTemplate

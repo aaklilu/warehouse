@@ -71,7 +71,7 @@ CREATE INDEX idx_order___name ON product_order (name);
 
 CREATE INDEX idx_order___o_customer_phone ON product_order (o_customer_phone);
 
-CREATE UNIQUE INDEX idx_order_article__article_id ON product_order_article (article_id);
+CREATE INDEX idx_order_article__article_id ON product_order_article (article_id);
 
 CREATE INDEX idx_product___name ON product (name);
 

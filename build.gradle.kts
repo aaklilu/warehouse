@@ -153,7 +153,7 @@ tasks.withType<GenerateTask> {
             "java8" to "true",
             "dateLibrary" to "java8",
             "serializationLibrary" to "jackson",
-            "enumPropertyNaming" to "snake_case",
+            "enumPropertyNaming" to "original",
             "modelPropertyNaming" to "snake_case",
             "collectionType" to "list",
         )

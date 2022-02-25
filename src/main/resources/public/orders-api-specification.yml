@@ -169,6 +169,10 @@ components:
           format: uuid
         name:
           type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        statusMessage:
+          type: string
         customer:
           $ref: '#/components/schemas/Customer'
         line_items:
@@ -176,6 +180,14 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/LineItem'
+    OrderStatus:
+      description: Status of the order
+      type: string
+      enum:
+        - INITIATED
+        - CREATED
+        - CLOSED
+        - FAILED
     Customer:
       title: Customer
       type: object
